@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  master-1:
+    image: mysql:latest
+    container_name: master-1
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "demo_db"
+    volumes:
+      - master-1-data:/var/lib/mysql                            # data volume
+      - ./master-1/my.cnf:/etc/my.cnf                           # conf file
+      - ./master-1/init.sql:/docker-entrypoint-initdb.d/1.sql   # init script
+    networks:
+      - default-network
+
+  master-2:
+    image: mysql:latest
+    container_name: master-2
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "demo_db"
+    volumes:
+      - master-2-data:/var/lib/mysql                            # data volume
+      - ./master-2/my.cnf:/etc/my.cnf                           # conf file
+      - ./master-2/init.sql:/docker-entrypoint-initdb.d/1.sql   # init script
+    networks:
+      - default-network
+
+  slave:
+    image: mysql:latest
+    container_name: slave
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "demo_db"
+    volumes:
+      - slave-data:/var/lib/mysql                            # data volume
+      - ./slave/my.cnf:/etc/my.cnf                           # conf file
+      - ./slave/init.sql:/docker-entrypoint-initdb.d/1.sql   # init script
+    networks:
+      - default-network
+    depends_on:
+      - master-1
+      - master-2
+
+networks:
+  default-network:
+
+volumes:
+  master-1-data:
+  master-2-data:
+  slave-data:
